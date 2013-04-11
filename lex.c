@@ -1,4 +1,3 @@
-//FLEX PARSER
 %{
 int _numargs = 10;
 char *_args[10];

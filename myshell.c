@@ -9,8 +9,8 @@ extern char **get_line();
 main() {
   int i;
   char **args; 
-  printf("myShell>");
   while(1) {
+	printf("myShell>");
 	args = get_line();
 	for(i = 0; args[i] != NULL; i++) {
 	  printf("Argument %d: %s\n", i, args[i]);
