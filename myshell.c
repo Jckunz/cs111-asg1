@@ -28,6 +28,7 @@ int main(int argc, char *argv[]) {
 		commandArgc = parse(args, &supp, &mode);
 		if(strcmp(args[0], "cd") == 0) chdir(args[1]);
 		else execute(args, mode, &supp);
+		printf("command arg count: %d\n", commandArgc);
 	}
 	return 0;
 }
@@ -35,6 +36,7 @@ int main(int argc, char *argv[]) {
 int parse(char **input, char **suppPtr, int *modePtr) {
 	int i, commandArgc = 0;
 	for(i = 0; input[i] != NULL; i++) {
+		commandArgc++;
 		if (strcmp(input[i], "&") == 0) {
 			*modePtr = BACKGROUND_MODE;
 			printf("running in Background Mode\n");
@@ -49,7 +51,6 @@ int parse(char **input, char **suppPtr, int *modePtr) {
 			printf("running in Pipeline Mode\n");
 		}
 		printf("Argument %d: %s\n", i, input[i]);
-		commandArgc++;
 	}
 	return commandArgc;
 }
