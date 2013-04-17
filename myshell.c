@@ -8,11 +8,11 @@
 void execute(char **, int, char **);
 int parse(char **, char **, int *);
 
-#define DEFAULT_MODE		 0
-#define BACKGROUND_MODE		 1
+#define DEFAULT_MODE         0
+#define BACKGROUND_MODE      1
 #define OUTPUT_REDIRECT_MODE 2
 #define INPUT_REDIRECT_MODE  3
-#define PIPELINE_MODE		 4
+#define PIPELINE_MODE        4
 
 extern char **get_line();
 
