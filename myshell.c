@@ -8,14 +8,14 @@
 extern char **get_line();
 
 main() {
-  int i;
-  char **args; 
-  while(1) {
-	printf("myShell>");
-	args = get_line();
-	if(strcmp(args[0], "exit") == 0) exit(0);
-	for(i = 0; args[i] != NULL; i++) {
-	  printf("Argument %d: %s\n", i, args[i]);
+	int i;
+	char **args; 
+	while(1) {
+		printf("myShell>");
+		args = get_line();
+		if(strcmp(args[0], "exit") == 0) exit(0);
+		for(i = 0; args[i] != NULL; i++) {
+			printf("Argument %d: %s\n", i, args[i]);
+		}
 	}
-  }
 }
