@@ -28,33 +28,53 @@ int main(int argc, char *argv[]) {
 		commandArgc = parse(args, &supp, &mode);
 		if(strcmp(args[0], "cd") == 0) chdir(args[1]);
 		else execute(args, mode, &supp);
-		printf("command arg count: %d\n", commandArgc);
+		//printf("command arg count: %d\n", commandArgc);
 	}
 	return 0;
 }
 
 int parse(char **input, char **suppPtr, int *modePtr) {
 	int i, commandArgc = 0;
-	for(i = 0; input[i] != NULL; i++) {
+	int terminate = 0;
+	*suppPtr = NULL;
+	for(i = 0; input[i] != NULL && !terminate; i++) {
 		commandArgc++;
 		if (strcmp(input[i], "&") == 0) {
 			*modePtr = BACKGROUND_MODE;
-			printf("running in Background Mode\n");
+			//printf("running in Background Mode\n");
 		} else if (strcmp(input[i], ">") == 0) {
 			*modePtr = OUTPUT_REDIRECT_MODE;
-			printf("running in Output Redirect Mode\n");
+			*suppPtr = input[i+1];
+			terminate = 1;
+			//printf("running in Output Redirect Mode\n");
 		} else if (strcmp(input[i], "<") == 0) {
 			*modePtr = INPUT_REDIRECT_MODE;
-			printf("running in Input Redirect Mode\n");
+			*suppPtr = input[i+1];
+			terminate = 1;
+			//printf("running in Input Redirect Mode\n");
 		} else if (strcmp(input[i], "|") == 0) {
 			*modePtr = PIPELINE_MODE;
-			printf("running in Pipeline Mode\n");
+			*suppPtr = input[i+1];
+			terminate = 1;
+			//printf("running in Pipeline Mode\n");
 		}
 		printf("Argument %d: %s\n", i, input[i]);
+		if (*suppPtr != NULL) printf("Supplement: %s\n", *suppPtr);
 	}
 	return commandArgc;
 }
 
 void execute(char **command, int mode, char **suppPtr) {
-   printf("executing\n");
+	pid_t pid, pid2;
+	char *supp2 = NULL;
+	int commandArgc2;
+	int mode2 = DEFAULT_MODE;
+	int pipeline[2];
+	if (mode == PIPELINE_MODE) {
+		if (pipe(pipeline)) {
+			fprintf(stderr,"Pipe failed!\n");
+			exit(-1);
+		}
+		//int commandArgc2 = parse (suppPtr, &supp2, &mode2);
+	}
 }
