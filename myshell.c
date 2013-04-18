@@ -121,13 +121,10 @@ void execute(char **command, int mode, char **suppPtr) {
 				close(pipeline[0]);
 				execvp(*command2, command2);
 			} else {
-				;//wait(NULL);
-				//waitpid(pid1, &pid1_status, 0);
-				//waitpid(pid2, &pid2_status, 0);
+				//close pipeline
 				close(pipeline[0]);
 				close(pipeline[1]);
 			}
 		} else waitpid(pid1, &pid1_status, 0);
-		//wait(NULL);
 	}
 }
