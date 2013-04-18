@@ -62,8 +62,11 @@ int parse(char **input, char *command[], char **suppPtr, int *modePtr) {
 			terminate = 1;
 			//printf("running in Pipeline Mode\n");
 		}
-		//printf("Argument %d: %s\n", i, input[i]);
-		//if (*suppPtr != NULL) printf("Supplement: %s\n", *suppPtr);
+	}
+	if (*suppPtr != NULL) printf("Supplement: %s\n", *suppPtr);
+	int n;
+	for (n = 0; command[n] != NULL; n++) {
+		printf("command[%d]: %s\n", n, command[n]);
 	}
 	return commandArgc;
 }
