@@ -11,7 +11,6 @@ int parse(char **, char *[], char **, int *);
 #define BACKGROUND_MODE      1
 #define OUTPUT_REDIRECT_MODE 2
 #define INPUT_REDIRECT_MODE  3
-#define PIPELINE_MODE        4
 
 extern char **get_line();
 
@@ -57,19 +56,9 @@ int parse(char **input, char *command[], char **sup_ptr, int *mode_ptr)
       command[i] = '\0';
       terminate = 1;
       //printf("running in Input Redirect Mode\n");
-    } else if (strcmp(input[i], "|") == 0) {
-      *mode_ptr = PIPELINE_MODE;
-      *sup_ptr = input[i+1];
-      command[i] = '\0';
-      terminate = 1;
-      //printf("running in Pipeline Mode\n");
-    }
+    } 
   }
-  if (*sup_ptr != NULL) printf("Supplement: %s\n", *sup_ptr);
-  int n;
-  for (n = 0; command[n] != NULL; n++) {
-    printf("command[%d]: %s\n", n, command[n]);
-  }
+  command[i] = '\0';
   return command_argc;
 }
 
@@ -82,12 +71,10 @@ void execute(char **command, int mode, char **sup_ptr)
   int command_argc2;
   int mode2 = DEFAULT_MODE, pid1_status, pid2_status;
   int pipeline[2];
-  if (mode == PIPELINE_MODE) {
-    if (pipe(pipeline)) {
-      fprintf(stderr,"Pipe failed!\n");
-      exit(-1);
-    }
-    parse (sup_ptr, command2, &sup2, &mode2);
+  int n;
+  if (*sup_ptr != NULL) printf("Supplement: %s\n", *sup_ptr);
+  for (n = 0; command[n] != NULL; n++) {
+    printf("command[%d]: %s\n", n, command[n]);
   }
   pid1 = fork();
   if (pid1 < 0) {
@@ -97,37 +84,16 @@ void execute(char **command, int mode, char **sup_ptr)
     switch (mode) {
       case OUTPUT_REDIRECT_MODE:
         file = freopen(*sup_ptr, "w+", stdout);
-        dup2(fileno(file), 1);
+        dup2(fileno(file), fileno(stdout));
         break;
       case INPUT_REDIRECT_MODE:
         file = freopen(*sup_ptr, "r", stdin);
-        dup2(fileno(file) ,0);
-        break;
-      case PIPELINE_MODE:
-        close(pipeline[0]);
-        dup2(pipeline[1], fileno(stdout));
-        close(pipeline[1]);
+        dup2(fileno(file), fileno(stdin));
         break;
     }
     execvp(*command, command);
   } else {
     if (mode == BACKGROUND_MODE);
-    else if (mode == PIPELINE_MODE) {
-      waitpid(pid1, &pid1_status, 0);
-      pid2 = fork();
-      if (pid2 < 0) {
-        printf("Error: pid2 < 0\n");
-        exit(1);
-      } else if (pid2 == 0) {
-        close(pipeline[1]);
-        dup2(pipeline[0], fileno(stdin));
-        close(pipeline[0]);
-        execvp(*command2, command2);
-      } else {
-        //close pipeline
-        close(pipeline[0]);
-        close(pipeline[1]);
-      }
-    } else waitpid(pid1, &pid1_status, 0);
+    else waitpid(pid1, &pid1_status, 0);
   }
 }
