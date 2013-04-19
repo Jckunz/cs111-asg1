@@ -15,68 +15,71 @@ int parse(char **, char *[], char **, int *);
 
 extern char **get_line();
 
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[])
+{
   int mode = DEFAULT_MODE;
-  int commandArgc;
-  char *command[80], *supp = NULL;
+  int command_argc;
+  char *command[80], *sup = NULL;
   char **args;
 
   while (1) {
     printf("myShell>"); //display prompt
     args = get_line();
     if (strcmp(args[0], "exit") == 0) exit(0);
-    commandArgc = parse(args, command, &supp, &mode);
+    command_argc = parse(args, command, &sup, &mode);
     if (strcmp(args[0], "cd") == 0) chdir(args[1]);
-    else execute(args, mode, &supp);
+    else execute(args, mode, &sup);
     //printf("command arg count: %d\n", commandArgc);
   }
   return 0;
 }
 
-int parse(char **input, char *command[], char **suppPtr, int *modePtr) {
-  int i, commandArgc = 0;
+int parse(char **input, char *command[], char **sup_ptr, int *mode_ptr)
+{
+  int i, command_argc = 0;
   int terminate = 0;
-  *suppPtr = NULL;
+  *sup_ptr = NULL;
   command = input;
   for (i = 0; input[i] != NULL && !terminate; i++) {
-    commandArgc++;
+    command_argc++;
     if (strcmp(input[i], "&") == 0) {
-      *modePtr = BACKGROUND_MODE;
+      *mode_ptr = BACKGROUND_MODE;
       //printf("running in Background Mode\n");
     } else if (strcmp(input[i], ">") == 0) {
-      *modePtr = OUTPUT_REDIRECT_MODE;
-      *suppPtr = input[i+1];
+      *mode_ptr = OUTPUT_REDIRECT_MODE;
+      *sup_ptr = input[i+1];
       command[i] = '\0';
       terminate = 1;
       //printf("running in Output Redirect Mode\n");
     } else if (strcmp(input[i], "<") == 0) {
-      *modePtr = INPUT_REDIRECT_MODE;
-      *suppPtr = input[i+1];
+      *mode_ptr = INPUT_REDIRECT_MODE;
+      *sup_ptr = input[i+1];
       command[i] = '\0';
       terminate = 1;
       //printf("running in Input Redirect Mode\n");
     } else if (strcmp(input[i], "|") == 0) {
-      *modePtr = PIPELINE_MODE;
-      *suppPtr = input[i+1];
+      *mode_ptr = PIPELINE_MODE;
+      *sup_ptr = input[i+1];
       command[i] = '\0';
       terminate = 1;
       //printf("running in Pipeline Mode\n");
     }
   }
-  if (*suppPtr != NULL) printf("Supplement: %s\n", *suppPtr);
+  if (*sup_ptr != NULL) printf("Supplement: %s\n", *sup_ptr);
   int n;
   for (n = 0; command[n] != NULL; n++) {
     printf("command[%d]: %s\n", n, command[n]);
   }
-  return commandArgc;
+  return command_argc;
 }
 
-void execute(char **command, int mode, char **suppPtr) {
+void execute(char **command, int mode, char **sup_ptr)
+{
   pid_t pid1, pid2;
   FILE *file;
-  char *supp2 = NULL;
+  char *sup2 = NULL;
   char *command2[80];
-  int commandArgc2;
+  int command_argc2;
   int mode2 = DEFAULT_MODE, pid1_status, pid2_status;
   int pipeline[2];
   if (mode == PIPELINE_MODE) {
@@ -84,20 +87,20 @@ void execute(char **command, int mode, char **suppPtr) {
       fprintf(stderr,"Pipe failed!\n");
       exit(-1);
     }
-    parse (suppPtr, command2, &supp2, &mode2);
+    parse (sup_ptr, command2, &sup2, &mode2);
   }
   pid1 = fork();
   if (pid1 < 0) {
     printf("Error: pid1 < 0\n");
     exit(1);
-  }  else if (pid1 == 0) {
+  } else if (pid1 == 0) {
     switch (mode) {
       case OUTPUT_REDIRECT_MODE:
-        file = freopen(*suppPtr, "w+", stdout);
+        file = freopen(*sup_ptr, "w+", stdout);
         dup2(fileno(file), 1);
         break;
       case INPUT_REDIRECT_MODE:
-        file = freopen(*suppPtr, "r", stdin);
+        file = freopen(*sup_ptr, "r", stdin);
         dup2(fileno(file) ,0);
         break;
       case PIPELINE_MODE:
